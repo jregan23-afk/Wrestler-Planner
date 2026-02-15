@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Elite Wrestler Planner</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{box-sizing:border-box;}
+
+body{
+font-family: "Segoe UI", Arial, sans-serif;
+margin:0;
+background:linear-gradient(135deg,#000000,#1a1a1a,#2b2b2b);
+color:#ffd54a;
+}
+
+/* Layout */
+.container{
+max-width:1100px;
+margin:auto;
+padding:20px;
+}
+
+h1{
+text-align:center;
+margin-bottom:20px;
+letter-spacing:1px;
+color:#ffcc00;
+}
+
+/* Cards */
+.card{
+background:rgba(0,0,0,0.65);
+border-radius:18px;
+padding:20px;
+margin-bottom:20px;
+box-shadow:0 12px 35px rgba(0,0,0,0.6);
+border:1px solid rgba(255,204,0,0.25);
+}
+
+/* Grid */
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+@media(max-width:800px){
+.grid{grid-template-columns:1fr;}
+}
+
+/* Inputs */
+label{
+font-size:14px;
+opacity:0.9;
+}
+
+input,select{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:none;
+margin-top:5px;
+margin-bottom:12px;
+background:#111;
+color:#ffcc00;
+border:1px solid #333;
+}
+
+/* Buttons */
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+background:linear-gradient(45deg,#ffcc00,#ffaa00);
+color:black;
+font-weight:bold;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{
+transform:scale(1.05);
+box-shadow:0 0 12px rgba(255,204,0,0.6);
+}
+
+/* Chat */
+.chat{
+height:160px;
+overflow:auto;
+background:#050505;
+border-radius:12px;
+padding:10px;
+margin-bottom:10px;
+border:1px solid rgba(255,204,0,0.2);
+}
+
+.msgUser{
+text-align:right;
+color:#ffcc00;
+margin:4px 0;
+}
+
+.msgAI{
+text-align:left;
+color:#ddd;
+margin:4px 0;
+}
+
+/* Chart */
+canvas{
+background:white;
+border-radius:12px;
+padding:10px;
+}
+
+/* Results text styling */
+.stat{
+font-size:18px;
+margin-bottom:6px;
+}
+
+</style></head>
+
+<body>
+
+<div class="container">
+
+<h1>Elite Wrestler Performance Planner</h1>
+
+<div class="grid">
+
+<!-- Athlete Input -->
+<div class="card">
+<h2>Athlete Setup</h2>
+
+<label>Current Weight (lbs)</label>
+<input id="weight" type="number">
+
+<label>Target Weight (lbs)</label>
+<input id="target" type="number">
+
+<label>Days Until Weigh-In</label>
+<input id="days" type="number">
+
+<label>Practice Duration (minutes)</label>
+<input id="practice" type="number">
+
+<label>Sweat Level</label>
+<select id="sweat">
+<option value="low">Low</option>
+<option value="medium">Medium</option>
+<option value="high">High</option>
+</select>
+
+<button onclick="generate()">Generate Plan</button>
+</div>
+
+<!-- Daily Checkin -->
+<div class="card">
+<h2>Daily Check-In</h2>
+
+<label>Today's Weight</label>
+<input id="logWeight" type="number">
+
+<button onclick="addLog()">Log Weight</button>
+<button onclick="resetLog()">Reset Log</button>
+
+</div>
+
+</div>
+
+<!-- Chart -->
+<div class="card">
+<h2>Weight Trend</h2>
+<canvas id="chart"></canvas>
+</div>
+
+<!-- Performance Results -->
+<div class="card" id="results"></div>
+
+<!-- Meals -->
+<div class="card">
+<h2>Fuel Suggestions</h2>
+<div id="meals"></div>
+</div>
+
+<!-- AI Coach -->
+<div class="card">
+<h2>AI Coach Assistant</h2>
+
+<div class="chat" id="chatBox"></div>
+
+<input id="chatInput" placeholder="Ask about recovery, carbs, hydration...">
+<button onclick="chat()">Ask Coach</button>
+
+</div>
+
+</div>
+
+<script>
+
+let chart;
+let weightLogs=[];
+
+/* ---------- PLAN GENERATION ---------- */
+function generate(){
+
+let w=parseFloat(weight.value);
+let t=parseFloat(target.value);
+let d=parseFloat(days.value);
+let p=parseFloat(practice.value);
+let s=sweat.value;
+
+if(!w||!t||!d||!p) return;
+
+let diff=w-t;
+let safe=(d/7)*1;
+let hydration=w*0.6 + p*0.2;
+
+if(s==="medium") hydration*=1.15;
+if(s==="high") hydration*=1.3;
+
+let carbs=w*2.2;
+let protein=w*0.8;
+let fats=w*0.35;
+
+results.innerHTML=`
+<h2>Performance Strategy</h2>
+<div class="stat">Weight Change: <b>${diff.toFixed(1)} lbs</b></div>
+<div class="stat">Gradual Range: <b>${safe.toFixed(1)} lbs</b></div>
+
+<h3>Daily Fuel Targets</h3>
+Carbs: ${carbs.toFixed(0)} g<br>
+Protein: ${protein.toFixed(0)} g<br>
+Fats: ${fats.toFixed(0)} g<br>
+
+<h3>Hydration</h3>
+~${hydration.toFixed(0)} oz/day
+
+<p>
+${diff>safe ?
+"Target exceeds gradual range — prioritize consistent fueling and consult your coach/trainer."
+:
+"Target aligns with gradual performance-focused management."}
+</p>
+`;
+
+generateMeals(carbs,protein);
+drawChart();
+}
+
+/* ---------- MEALS ---------- */
+function generateMeals(c,p){
+meals.innerHTML=`
+Breakfast → Oats, fruit, eggs<br>
+Lunch → Rice bowl + lean protein<br>
+Snack → Yogurt + granola<br>
+Post Practice → Chocolate milk / shake<br>
+Dinner → Potatoes, vegetables, protein<br><br>
+Macro Emphasis → Carbs ${c.toFixed(0)}g | Protein ${p.toFixed(0)}g
+`;
+}
+
+/* ---------- WEIGHT LOG ---------- */
+function addLog(){
+let val=parseFloat(logWeight.value);
+if(!val) return;
+
+weightLogs.push(val);
+logWeight.value="";
+drawChart();
+}
+
+function resetLog(){
+weightLogs=[];
+drawChart();
+}
+
+/* ---------- CHART ---------- */
+function drawChart(){
+
+if(chart) chart.destroy();
+
+chart=new Chart(document.getElementById('chart'),{
+type:'line',
+data:{
+labels:weightLogs.map((_,i)=>"Entry "+(i+1)),
+datasets:[{
+label:'Actual Weight',
+data:weightLogs,
+borderWidth:3,
+tension:0.25
+}]
+}
+});
+}
+
+/* ---------- AI CHAT ---------- */
+function chat(){
+
+let msg=chatInput.value.toLowerCase();
+let response="Stay consistent with hydration, fueling, and sleep.";
+
+if(msg.includes("hydrate"))
+response="Hydrate steadily all day. Add electrolytes during hard practices.";
+
+if(msg.includes("carb"))
+response="Carbs fuel performance — rice, oats, potatoes, fruit are top choices.";
+
+if(msg.includes("recovery"))
+response="Eat carbs + protein within 60 min post practice and aim for 8 hrs sleep.";
+
+if(msg.includes("weight"))
+response="Monitor trends — daily fluctuations are normal. Focus on weekly direction.";
+
+chatBox.innerHTML+=`<div class="msgUser">You: ${msg}</div>`;
+chatBox.innerHTML+=`<div class="msgAI">Coach: ${response}</div>`;
+chatInput.value="";
+}
+
+</script>
+
+</body>
+</html>
+
