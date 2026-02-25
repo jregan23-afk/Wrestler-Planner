@@ -122,7 +122,9 @@ padding:10px;
 font-size:18px;
 margin-bottom:6px;
 }
-
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script> 
 </style></head>
 
 <body>
@@ -200,7 +202,23 @@ margin-bottom:6px;
 </div>
 
 </div>
+  
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyD9VY7krf_XsQj4hF7DomFNsNKejEtwvuY",
+  authDomain: "elite-wrestler-performance.firebaseapp.com",
+  projectId: "elite-wrestler-performance",
+  storageBucket: "elite-wrestler-performance.firebasestorage.app",
+  messagingSenderId: "699274899740",
+  appId: "1:699274899740:web:91d7006270ec545099cad9"
+};
 
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+</script>
+  
 <script>
 
 let chart;
@@ -326,4 +344,5 @@ chatInput.value="";
 
 </body>
 </html>
+
 
