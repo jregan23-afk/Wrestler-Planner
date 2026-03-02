@@ -124,13 +124,13 @@ margin-bottom:6px;
 }
 </style>
 
-<!-- Firebase Scripts -->
+</style></head>
+
+  <!-- Firebase Compat Scripts -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
-</style></head>
-
+  
 <body>
 
 <div class="container">
@@ -217,9 +217,12 @@ const firebaseConfig = {
   appId: "1:699274899740:web:91d7006270ec545099cad9"
 };
 
-firebase-app-compat.js
-firebase-auth-compat.js
-firebase-firestore-compat.js
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+console.log("Firebase connected");
 </script>
   
 <script>
@@ -347,6 +350,7 @@ chatInput.value="";
 
 </body>
 </html>
+
 
 
 
