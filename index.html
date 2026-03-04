@@ -9,6 +9,8 @@
 <style>
 *{box-sizing:border-box;}
 
+
+  
 body{
 font-family: "Segoe UI", Arial, sans-serif;
 margin:0;
@@ -125,11 +127,6 @@ margin-bottom:6px;
 </style>
 
 </style></head>
-
-  <!-- Firebase Compat Scripts -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   
 <body>
 
@@ -206,24 +203,6 @@ margin-bottom:6px;
 </div>
 
 </div>
-  
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyD9VY7krf_XsQj4hF7DomFNsNKejEtwvuY",
-  authDomain: "elite-wrestler-performance.firebaseapp.com",
-  projectId: "elite-wrestler-performance",
-  storageBucket: "elite-wrestler-performance.firebasestorage.app",
-  messagingSenderId: "699274899740",
-  appId: "1:699274899740:web:91d7006270ec545099cad9"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-console.log("Firebase connected");
-</script>
   
 <script>
 
@@ -346,10 +325,55 @@ chatBox.innerHTML+=`<div class="msgAI">Coach: ${response}</div>`;
 chatInput.value="";
 }
 
-</script>
+<!-- Firebase Compat SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
+<script>
+/* ============================
+   FIREBASE CONFIGURATION
+============================ */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD9VY7krf_XsQj4hF7DomFNsNKejEtwvuY",
+  authDomain: "elite-wrestler-performance.firebaseapp.com",
+  projectId: "elite-wrestler-performance",
+  storageBucket: "elite-wrestler-performance.firebasestorage.app",
+  messagingSenderId: "699274899740",
+  appId: "1:699274899740:web:91d7006270ec545099cad9"
+};
+
+/* ============================
+   INITIALIZE FIREBASE
+============================ */
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+console.log("Firebase connected successfully");
+
+/* ============================
+   TEST FIRESTORE CONNECTION
+============================ */
+
+db.collection("test").doc("connection").set({
+  status: "connected",
+  timestamp: new Date()
+})
+.then(() => {
+  console.log("Firestore write successful");
+})
+.catch((error) => {
+  console.error("Firestore error:", error);
+});
+</script>
+  
 </body>
 </html>
+
 
 
 
