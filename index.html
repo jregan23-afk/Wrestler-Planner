@@ -64,7 +64,7 @@
       margin-bottom: 16px;
     }
     label { display: block; font-size: 13px; color: #adc8e6; margin-bottom: 4px; }
-    input, select, textarea {
+    input, select {
       width: 100%;
       border: 1px solid #35506a;
       background: #0f1720;
@@ -84,13 +84,19 @@
       cursor: pointer;
       margin-bottom: 8px;
     }
+    .btn-muted {
+      background: #243648;
+      color: #dbeeff;
+      border: 1px solid #416282;
+    }
     .result { background: #0d141d; border: 1px solid #2f4358; border-radius: 10px; padding: 12px; line-height: 1.45; }
     .ok { color: #81e7a8; }
     .warn { color: #ffcc75; }
     .danger { color: #ff8d8d; }
-    ul { padding-left: 18px; }
-    .kpi { font-size: 24px; font-weight: 700; }
     .muted { color: #b6ccdf; font-size: 13px; }
+    .hidden { display: none; }
+    .kpi { font-size: 24px; font-weight: 700; }
+    ul { padding-left: 18px; }
     canvas { background: #fff; border-radius: 10px; padding: 10px; }
   </style>
 </head>
@@ -102,156 +108,147 @@
       <span class="pill">Safe Weight Trend</span>
       <span class="pill">Hydration + Electrolytes</span>
       <span class="pill">Fuel + Recovery</span>
-      <span class="pill">Coach/Parent Mode</span>
+      <span class="pill">Google Sheets Login Logs</span>
       <div class="disclaimer">
         Educational athlete-support tool only. Not medical advice. If symptoms (dizziness, fainting, confusion, rapid extreme weight loss) appear,
         stop and contact a coach, athletic trainer, or healthcare professional.
       </div>
     </section>
 
-    <div class="tabs">
-      <button class="tab active" data-target="dashboard">Dashboard</button>
-      <button class="tab" data-target="weightHydration">Weight & Hydration</button>
-      <button class="tab" data-target="fuelRecovery">Fuel & Recovery</button>
-      <button class="tab" data-target="learn">Learn Hub</button>
-      <button class="tab" data-target="coach">Coach/Parent</button>
-      <button class="tab" data-target="ethics">Safety & Ethics</button>
+    <section id="authCard" class="card">
+      <h3>Login (Google Sheets)</h3>
+      <p class="muted">Use your Google Sheets-backed email/password account. Configure your endpoint in Safety & Ethics.</p>
+      <label>Email</label>
+      <input id="loginEmail" type="email" placeholder="athlete@example.com" />
+      <label>Password</label>
+      <input id="loginPassword" type="password" placeholder="Password" />
+      <button onclick="loginWithSheets()">Login</button>
+      <button class="btn-muted" onclick="logout()">Logout</button>
+      <div id="authStatus" class="result">Not logged in.</div>
+    </section>
+
+    <div id="appContent" class="hidden">
+      <div class="tabs">
+        <button class="tab active" data-target="dashboard">Dashboard</button>
+        <button class="tab" data-target="weightHydration">Weight & Hydration</button>
+        <button class="tab" data-target="fuelRecovery">Fuel & Recovery</button>
+        <button class="tab" data-target="learn">Learn Hub</button>
+        <button class="tab" data-target="coach">Coach/Parent</button>
+        <button class="tab" data-target="ethics">Safety & Ethics</button>
+      </div>
+
+      <section id="dashboard" class="panel active">
+        <div class="grid">
+          <div class="card">
+            <h3>Daily Athlete Check-In</h3>
+            <label>Today's Weight (lbs)</label><input id="todayWeight" type="number" />
+            <label>Energy (1-5)</label>
+            <select id="energy"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select>
+            <label>Hydration Status</label>
+            <select id="hydrationStatus"><option>Well hydrated</option><option>A bit dehydrated</option><option>Very dehydrated</option></select>
+            <label>Meals Skipped Today</label><input id="mealsSkipped" type="number" min="0" max="8" value="0" />
+            <label>Sleep Last Night (hours)</label><input id="sleepHours" type="number" step="0.5" value="8" />
+            <button onclick="saveDailyLog()">Save Check-In</button>
+            <div id="checkinFeedback" class="result">No check-in yet.</div>
+          </div>
+          <div class="card">
+            <h3>Season Risk Snapshot</h3>
+            <div class="kpi" id="riskLevel">Low</div>
+            <p class="muted" id="riskReason">Add check-ins to get risk insights.</p>
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section id="weightHydration" class="panel">
+        <div class="grid">
+          <div class="card">
+            <h3>Safe Weight-Loss Planner</h3>
+            <label>Current Weight (lbs)</label><input id="currentWeight" type="number" />
+            <label>Goal Weight (lbs)</label><input id="goalWeight" type="number" />
+            <label>Days Until Weigh-In</label><input id="daysToWeighIn" type="number" />
+            <label>Age Group</label><select id="ageGroup"><option>High school</option><option>College</option></select>
+            <button onclick="runWeightPlan()">Generate Safe Plan</button>
+            <div id="weightPlanOutput" class="result"></div>
+          </div>
+          <div class="card">
+            <h3>Hydration & Electrolyte Calculator</h3>
+            <label>Body Weight (lbs)</label><input id="hydroWeight" type="number" />
+            <label>Practice Duration (minutes)</label><input id="practiceMinutes" type="number" />
+            <label>Sweat Rate</label><select id="sweatRate"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select>
+            <label>Environment</label><select id="environment"><option value="normal">Normal</option><option value="hot">Hot/Humid</option></select>
+            <button onclick="runHydrationPlan()">Calculate Hydration</button>
+            <div id="hydrationOutput" class="result"></div>
+          </div>
+          <div class="card">
+            <h3>Weigh-In Recovery Plan</h3>
+            <label>Weight Lost in Last 24h (lbs)</label><input id="lost24h" type="number" step="0.1" />
+            <button onclick="generateWeighInRecovery()">Build Recovery Steps</button>
+            <div id="weighInRecoveryOutput" class="result"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="fuelRecovery" class="panel">
+        <div class="grid">
+          <div class="card">
+            <h3>Daily Fuel Planner</h3>
+            <label>Body Weight (lbs)</label><input id="fuelWeight" type="number" />
+            <label>Day Type</label><select id="dayType"><option value="practice">Practice Day</option><option value="rest">Rest Day</option></select>
+            <button onclick="runFuelPlan()">Build Fuel Plan</button>
+            <div id="fuelOutput" class="result"></div>
+          </div>
+          <div class="card">
+            <h3>Post-Practice Recovery Guide</h3>
+            <label>Minutes Since Practice Ended</label><input id="minutesSince" type="number" value="20" />
+            <button onclick="runRecoveryGuide()">Get Recovery Guidance</button>
+            <div id="recoveryOutput" class="result"></div>
+          </div>
+          <div class="card">
+            <h3>Tournament Recovery Mode</h3>
+            <label>Matches Today</label><input id="matchCount" type="number" value="3" />
+            <label>Average Minutes Between Matches</label><input id="minutesBetween" type="number" value="90" />
+            <button onclick="runTournamentPlan()">Create Tournament Plan</button>
+            <div id="tournamentOutput" class="result"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="learn" class="panel">
+        <div class="card">
+          <h3>Hydration Education Hub</h3>
+          <ul>
+            <li><b>Pre-practice:</b> Start hydrated; pale-yellow urine is a good sign.</li>
+            <li><b>During practice:</b> Sip regularly, not all at once.</li>
+            <li><b>Electrolytes:</b> Useful in long/hot sessions or high sweat loss.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="coach" class="panel">
+        <div class="card">
+          <h3>Coach/Parent Support Mode</h3>
+          <button onclick="generateCoachSummary()">Generate Weekly Summary</button>
+          <div id="coachSummaryOutput" class="result"></div>
+        </div>
+      </section>
+
+      <section id="ethics" class="panel">
+        <div class="card">
+          <h3>Integration Settings</h3>
+          <label>Google Apps Script Web App URL</label>
+          <input id="gsheetEndpoint" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
+          <label>Optional GitHub Webhook/Proxy URL</label>
+          <input id="githubEndpoint" type="url" placeholder="https://your-api.example.com/github-login-log" />
+          <button onclick="saveIntegrationSettings()">Save Integration Settings</button>
+          <div id="integrationStatus" class="result">Set your endpoints, then login attempts will validate with Google Sheets and log events.</div>
+        </div>
+        <div class="card">
+          <h3>Security Notes</h3>
+          <p>Password auth should be validated server-side in Apps Script. Do not store cleartext passwords in browser storage. Prefer password hashing in Sheets script.</p>
+        </div>
+      </section>
     </div>
-
-    <section id="dashboard" class="panel active">
-      <div class="grid">
-        <div class="card">
-          <h3>Daily Athlete Check-In</h3>
-          <label>Today's Weight (lbs)</label>
-          <input id="todayWeight" type="number" />
-          <label>Energy (1-5)</label>
-          <select id="energy"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select>
-          <label>Hydration Status</label>
-          <select id="hydrationStatus"><option>Well hydrated</option><option>A bit dehydrated</option><option>Very dehydrated</option></select>
-          <label>Meals Skipped Today</label>
-          <input id="mealsSkipped" type="number" min="0" max="8" value="0" />
-          <label>Sleep Last Night (hours)</label>
-          <input id="sleepHours" type="number" step="0.5" value="8" />
-          <button onclick="saveDailyLog()">Save Check-In</button>
-          <div id="checkinFeedback" class="result">No check-in yet.</div>
-        </div>
-        <div class="card">
-          <h3>Season Risk Snapshot</h3>
-          <div class="kpi" id="riskLevel">Low</div>
-          <p class="muted" id="riskReason">Add check-ins to get risk insights.</p>
-          <canvas id="trendChart"></canvas>
-        </div>
-      </div>
-    </section>
-
-    <section id="weightHydration" class="panel">
-      <div class="grid">
-        <div class="card">
-          <h3>Safe Weight-Loss Planner</h3>
-          <label>Current Weight (lbs)</label><input id="currentWeight" type="number" />
-          <label>Goal Weight (lbs)</label><input id="goalWeight" type="number" />
-          <label>Days Until Weigh-In</label><input id="daysToWeighIn" type="number" />
-          <label>Age Group</label>
-          <select id="ageGroup"><option>High school</option><option>College</option></select>
-          <button onclick="runWeightPlan()">Generate Safe Plan</button>
-          <div id="weightPlanOutput" class="result"></div>
-        </div>
-
-        <div class="card">
-          <h3>Hydration & Electrolyte Calculator</h3>
-          <label>Body Weight (lbs)</label><input id="hydroWeight" type="number" />
-          <label>Practice Duration (minutes)</label><input id="practiceMinutes" type="number" />
-          <label>Sweat Rate</label>
-          <select id="sweatRate"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select>
-          <label>Environment</label>
-          <select id="environment"><option value="normal">Normal</option><option value="hot">Hot/Humid</option></select>
-          <button onclick="runHydrationPlan()">Calculate Hydration</button>
-          <div id="hydrationOutput" class="result"></div>
-        </div>
-
-        <div class="card">
-          <h3>Weigh-In Recovery Plan</h3>
-          <label>Weight Lost in Last 24h (lbs)</label><input id="lost24h" type="number" step="0.1" />
-          <button onclick="generateWeighInRecovery()">Build Recovery Steps</button>
-          <div id="weighInRecoveryOutput" class="result"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="fuelRecovery" class="panel">
-      <div class="grid">
-        <div class="card">
-          <h3>Daily Fuel Planner</h3>
-          <label>Body Weight (lbs)</label><input id="fuelWeight" type="number" />
-          <label>Day Type</label>
-          <select id="dayType"><option value="practice">Practice Day</option><option value="rest">Rest Day</option></select>
-          <button onclick="runFuelPlan()">Build Fuel Plan</button>
-          <div id="fuelOutput" class="result"></div>
-        </div>
-
-        <div class="card">
-          <h3>Post-Practice Recovery Guide</h3>
-          <label>Minutes Since Practice Ended</label><input id="minutesSince" type="number" value="20" />
-          <button onclick="runRecoveryGuide()">Get Recovery Guidance</button>
-          <div id="recoveryOutput" class="result"></div>
-        </div>
-
-        <div class="card">
-          <h3>Tournament Recovery Mode</h3>
-          <label>Matches Today</label><input id="matchCount" type="number" value="3" />
-          <label>Average Minutes Between Matches</label><input id="minutesBetween" type="number" value="90" />
-          <button onclick="runTournamentPlan()">Create Tournament Plan</button>
-          <div id="tournamentOutput" class="result"></div>
-        </div>
-      </div>
-    </section>
-
-    <section id="learn" class="panel">
-      <div class="card">
-        <h3>Hydration Education Hub</h3>
-        <ul>
-          <li><b>Pre-practice:</b> Start hydrated; pale-yellow urine is a good sign.</li>
-          <li><b>During practice:</b> Sip regularly, not all at once.</li>
-          <li><b>Electrolytes:</b> Useful in long/hot sessions or high sweat loss.</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3>Urine Color Quick Guide</h3>
-        <p><span class="ok">Pale yellow:</span> hydrated | <span class="warn">Dark yellow:</span> drink more | <span class="danger">Amber:</span> dehydration risk.</p>
-      </div>
-      <div class="card">
-        <h3>Nutrition for Immunity</h3>
-        <ul>
-          <li>Carbs support training stress tolerance.</li>
-          <li>Protein supports repair and immune defenses.</li>
-          <li>Colorful produce + adequate sleep reduce burnout risk.</li>
-        </ul>
-      </div>
-    </section>
-
-    <section id="coach" class="panel">
-      <div class="card">
-        <h3>Coach/Parent Support Mode</h3>
-        <p class="muted">Supportive monitoring only. No shaming, no punitive language.</p>
-        <button onclick="generateCoachSummary()">Generate Weekly Summary</button>
-        <div id="coachSummaryOutput" class="result"></div>
-      </div>
-    </section>
-
-    <section id="ethics" class="panel">
-      <div class="card">
-        <h3>Healthy Weight-Class Selector Principles</h3>
-        <ul>
-          <li>Prioritize stable performance and recovery over rapid short-term cuts.</li>
-          <li>Avoid targets that require repeated severe dehydration.</li>
-          <li>Use coach/trainer input for class decisions.</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3>Red-Flag Alert System</h3>
-        <p>Triggers include rapid weight drops, repeated skipped meals, low sleep, and low energy trends. Alerts are supportive and suggest speaking with qualified adults or professionals.</p>
-      </div>
-    </section>
   </div>
 
   <script>
@@ -259,6 +256,12 @@
     const panels = document.querySelectorAll('.panel');
     let trendChart;
     let logs = JSON.parse(localStorage.getItem('wrestleWellLogs') || '[]');
+    let loggedInEmail = sessionStorage.getItem('loggedInEmail') || '';
+
+    const settings = {
+      gsheetEndpoint: localStorage.getItem('gsheetEndpoint') || '',
+      githubEndpoint: localStorage.getItem('githubEndpoint') || ''
+    };
 
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
@@ -269,28 +272,122 @@
       });
     });
 
+    function setAuthStatus(message, level = 'ok') {
+      document.getElementById('authStatus').innerHTML = `<span class="${level}">${message}</span>`;
+    }
+
+    function applyAuthState() {
+      const app = document.getElementById('appContent');
+      if (loggedInEmail) {
+        app.classList.remove('hidden');
+        setAuthStatus(`Logged in as ${loggedInEmail}.`, 'ok');
+      } else {
+        app.classList.add('hidden');
+        setAuthStatus('Not logged in.', 'warn');
+      }
+    }
+
+    function saveIntegrationSettings() {
+      settings.gsheetEndpoint = document.getElementById('gsheetEndpoint').value.trim();
+      settings.githubEndpoint = document.getElementById('githubEndpoint').value.trim();
+      localStorage.setItem('gsheetEndpoint', settings.gsheetEndpoint);
+      localStorage.setItem('githubEndpoint', settings.githubEndpoint);
+      document.getElementById('integrationStatus').innerHTML = '<span class="ok">Saved endpoints.</span> Login will now use these URLs.';
+    }
+
+    async function postJson(url, payload) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json().catch(() => ({}));
+    }
+
+    async function loginWithSheets() {
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const password = document.getElementById('loginPassword').value;
+
+      if (!settings.gsheetEndpoint) {
+        setAuthStatus('Missing Google Apps Script endpoint. Add it in Safety & Ethics.', 'danger');
+        return;
+      }
+      if (!email || !password) {
+        setAuthStatus('Enter both email and password.', 'warn');
+        return;
+      }
+
+      setAuthStatus('Checking credentials...', 'warn');
+
+      try {
+        const payload = {
+          action: 'login',
+          email,
+          password,
+          source: 'github-pages-wrestlewell',
+          timestamp: new Date().toISOString()
+        };
+
+        const result = await postJson(settings.gsheetEndpoint, payload);
+        if (!result.success) {
+          setAuthStatus(result.message || 'Login failed.', 'danger');
+          return;
+        }
+
+        loggedInEmail = email;
+        sessionStorage.setItem('loggedInEmail', loggedInEmail);
+        applyAuthState();
+
+        await postLoginAudit(email);
+      } catch (err) {
+        setAuthStatus(`Could not reach login service: ${err.message}`, 'danger');
+      }
+    }
+
+    async function postLoginAudit(email) {
+      const auditPayload = {
+        action: 'logLogin',
+        email,
+        event: 'successful_login',
+        source: 'github-pages-wrestlewell',
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        await postJson(settings.gsheetEndpoint, auditPayload);
+      } catch (_err) {
+        // Best-effort logging; do not block user.
+      }
+
+      if (settings.githubEndpoint) {
+        try {
+          await postJson(settings.githubEndpoint, auditPayload);
+        } catch (_err) {
+          // Optional integration; do not block user.
+        }
+      }
+    }
+
+    function logout() {
+      loggedInEmail = '';
+      sessionStorage.removeItem('loggedInEmail');
+      applyAuthState();
+    }
+
     function runWeightPlan() {
       const current = parseFloat(document.getElementById('currentWeight').value);
       const goal = parseFloat(document.getElementById('goalWeight').value);
       const days = parseFloat(document.getElementById('daysToWeighIn').value);
       const age = document.getElementById('ageGroup').value;
       if (!current || !goal || !days) return;
-
       const toLose = current - goal;
-      const weeks = days / 7;
-      const weeklyLoss = toLose / weeks;
+      const weeklyLoss = toLose / (days / 7);
       const safeLimit = age === 'High school' ? 1.0 : 1.5;
       let levelClass = 'ok';
-      let levelMsg = 'Within a conservative range. Focus on consistent routines.';
-
-      if (weeklyLoss > safeLimit) {
-        levelClass = 'danger';
-        levelMsg = 'Unsafe pace detected. Adjust target or timeline and involve coach/trainer.';
-      } else if (weeklyLoss > safeLimit * 0.8) {
-        levelClass = 'warn';
-        levelMsg = 'Borderline aggressive. Watch hydration, energy, and sleep closely.';
-      }
-
+      let levelMsg = 'Within a conservative range.';
+      if (weeklyLoss > safeLimit) { levelClass = 'danger'; levelMsg = 'Unsafe pace detected.'; }
+      else if (weeklyLoss > safeLimit * 0.8) { levelClass = 'warn'; levelMsg = 'Borderline aggressive.'; }
       document.getElementById('weightPlanOutput').innerHTML = `
         <b>Needed change:</b> ${toLose.toFixed(1)} lbs<br>
         <b>Weekly pace:</b> ${weeklyLoss.toFixed(2)} lbs/week<br>
@@ -305,22 +402,16 @@
       const sweat = document.getElementById('sweatRate').value;
       const env = document.getElementById('environment').value;
       if (!weight || !practice) return;
-
       let dailyOz = weight * 0.6;
       let duringOz = (practice / 15) * 4;
       if (sweat === 'medium') duringOz *= 1.2;
       if (sweat === 'high') duringOz *= 1.4;
-      if (env === 'hot') {
-        dailyOz *= 1.1;
-        duringOz *= 1.15;
-      }
+      if (env === 'hot') { dailyOz *= 1.1; duringOz *= 1.15; }
       const electrolyteMg = duringOz > 24 ? 500 : 250;
-
       document.getElementById('hydrationOutput').innerHTML = `
         <b>Daily hydration target:</b> ${dailyOz.toFixed(0)} oz<br>
         <b>During practice:</b> ${duringOz.toFixed(0)} oz total<br>
-        <b>Electrolyte sodium:</b> ${electrolyteMg}–${electrolyteMg + 250} mg during/after session<br>
-        <span class="muted">Use urine color and thirst trends to fine-tune.</span>
+        <b>Electrolyte sodium:</b> ${electrolyteMg}–${electrolyteMg + 250} mg during/after session
       `;
     }
 
@@ -329,10 +420,9 @@
       const fluidOz = Math.max(24, lost * 24);
       document.getElementById('weighInRecoveryOutput').innerHTML = `
         <ol>
-          <li>Start with ${Math.round(fluidOz * 0.4)} oz fluid + electrolytes in first hour.</li>
-          <li>Eat easy carbs + lean protein within 30–60 min (ex: rice + chicken, bagel + yogurt).</li>
-          <li>Continue sipping to total ~${fluidOz.toFixed(0)} oz over 4 hours.</li>
-          <li>Avoid high-fat/high-fiber meals immediately if competing soon.</li>
+          <li>First hour: ${Math.round(fluidOz * 0.4)} oz fluid + electrolytes.</li>
+          <li>30–60 min: easy carbs + lean protein.</li>
+          <li>Total over 4 hours: ~${fluidOz.toFixed(0)} oz.</li>
         </ol>
       `;
     }
@@ -341,34 +431,15 @@
       const weight = parseFloat(document.getElementById('fuelWeight').value);
       const dayType = document.getElementById('dayType').value;
       if (!weight) return;
-
-      const carbPerLb = dayType === 'practice' ? 2.8 : 2.1;
-      const proteinPerLb = 0.8;
-      const fatPerLb = dayType === 'practice' ? 0.35 : 0.4;
-
-      const carbs = weight * carbPerLb;
-      const protein = weight * proteinPerLb;
-      const fats = weight * fatPerLb;
-
-      document.getElementById('fuelOutput').innerHTML = `
-        <b>${dayType === 'practice' ? 'Practice' : 'Rest'} Day Targets</b><br>
-        Carbs: ${carbs.toFixed(0)} g<br>
-        Protein: ${protein.toFixed(0)} g<br>
-        Fats: ${fats.toFixed(0)} g<br><br>
-        <b>Simple meal flow:</b><br>
-        Breakfast: oats + fruit + eggs<br>
-        Pre-practice: banana + granola bar<br>
-        Post-practice: chocolate milk + sandwich<br>
-        Dinner: potatoes/rice + vegetables + protein
-      `;
+      const carbs = weight * (dayType === 'practice' ? 2.8 : 2.1);
+      const protein = weight * 0.8;
+      const fats = weight * (dayType === 'practice' ? 0.35 : 0.4);
+      document.getElementById('fuelOutput').innerHTML = `Carbs: ${carbs.toFixed(0)}g<br>Protein: ${protein.toFixed(0)}g<br>Fats: ${fats.toFixed(0)}g`;
     }
 
     function runRecoveryGuide() {
       const minutes = parseFloat(document.getElementById('minutesSince').value);
-      let msg;
-      if (minutes <= 60) msg = '<span class="ok">Perfect window:</span> prioritize carbs + protein now, plus fluids/electrolytes.';
-      else if (minutes <= 120) msg = '<span class="warn">Still useful:</span> recover now with a larger balanced snack/meal.';
-      else msg = '<span class="danger">Delayed recovery:</span> refuel ASAP and monitor energy tomorrow.';
+      const msg = minutes <= 60 ? '<span class="ok">Perfect recovery window.</span>' : (minutes <= 120 ? '<span class="warn">Recover now.</span>' : '<span class="danger">Delayed recovery.</span>');
       document.getElementById('recoveryOutput').innerHTML = msg;
     }
 
@@ -377,11 +448,7 @@
       const between = parseFloat(document.getElementById('minutesBetween').value);
       if (!matches || !between) return;
       const sipOz = between >= 60 ? 12 : 8;
-      document.getElementById('tournamentOutput').innerHTML = `
-        <b>Between matches:</b> ~${sipOz} oz fluid + quick carbs (fruit, pretzels, sports drink).<br>
-        <b>For ${matches} matches:</b> pack ${Math.ceil(matches * sipOz / 16)} bottles (16 oz each).<br>
-        <b>After final match:</b> full meal with carbs + protein within 60 minutes.
-      `;
+      document.getElementById('tournamentOutput').innerHTML = `Between matches: ~${sipOz} oz + quick carbs.`;
     }
 
     function saveDailyLog() {
@@ -391,22 +458,9 @@
       const skipped = parseInt(document.getElementById('mealsSkipped').value, 10) || 0;
       const sleep = parseFloat(document.getElementById('sleepHours').value);
       if (!weight || !sleep) return;
-
-      const entry = { date: new Date().toLocaleDateString(), weight, energy, hydration, skipped, sleep };
-      logs.push(entry);
+      logs.push({ date: new Date().toLocaleDateString(), weight, energy, hydration, skipped, sleep });
       localStorage.setItem('wrestleWellLogs', JSON.stringify(logs));
-
-      const flags = [];
-      if (energy <= 2) flags.push('very low energy');
-      if (hydration !== 'Well hydrated') flags.push('hydration concerns');
-      if (skipped >= 2) flags.push('multiple skipped meals');
-      if (sleep < 7) flags.push('insufficient sleep');
-
-      const message = flags.length
-        ? `<span class="warn">Check-in saved. Watch: ${flags.join(', ')}.</span> Increase carbs, fluids, and recovery routines.`
-        : `<span class="ok">Check-in saved. Recovery indicators look solid today.</span>`;
-
-      document.getElementById('checkinFeedback').innerHTML = message;
+      document.getElementById('checkinFeedback').innerHTML = '<span class="ok">Check-in saved.</span>';
       updateDashboard();
     }
 
@@ -414,7 +468,6 @@
       const riskLevel = document.getElementById('riskLevel');
       const riskReason = document.getElementById('riskReason');
       if (!logs.length) return;
-
       const recent = logs.slice(-7);
       let score = 0;
       recent.forEach(l => {
@@ -423,21 +476,9 @@
         if (l.skipped >= 2) score += 2;
         if (l.sleep < 7) score += 1;
       });
-
-      if (score >= 10) {
-        riskLevel.textContent = 'High';
-        riskLevel.className = 'kpi danger';
-        riskReason.textContent = 'Pattern shows underfueling + recovery strain. Reduce stressors and involve coach/trainer.';
-      } else if (score >= 5) {
-        riskLevel.textContent = 'Moderate';
-        riskLevel.className = 'kpi warn';
-        riskReason.textContent = 'Some warning signs present. Improve hydration, carbs, and sleep this week.';
-      } else {
-        riskLevel.textContent = 'Low';
-        riskLevel.className = 'kpi ok';
-        riskReason.textContent = 'Current trend supports safer performance management.';
-      }
-
+      if (score >= 10) { riskLevel.textContent = 'High'; riskLevel.className = 'kpi danger'; riskReason.textContent = 'Underfueling + recovery strain.'; }
+      else if (score >= 5) { riskLevel.textContent = 'Moderate'; riskLevel.className = 'kpi warn'; riskReason.textContent = 'Some warning signs.'; }
+      else { riskLevel.textContent = 'Low'; riskLevel.className = 'kpi ok'; riskReason.textContent = 'Trend supports safer management.'; }
       drawTrendChart();
     }
 
@@ -446,35 +487,30 @@
       if (trendChart) trendChart.destroy();
       trendChart = new Chart(ctx, {
         type: 'line',
-        data: {
-          labels: logs.map(l => l.date),
-          datasets: [{ label: 'Weight Trend', data: logs.map(l => l.weight), borderWidth: 2, tension: 0.2 }]
-        },
-        options: { plugins: { legend: { display: true } } }
+        data: { labels: logs.map(l => l.date), datasets: [{ label: 'Weight Trend', data: logs.map(l => l.weight), borderWidth: 2, tension: 0.2 }] }
       });
     }
 
     function generateCoachSummary() {
       if (!logs.length) {
-        document.getElementById('coachSummaryOutput').innerHTML = 'No logs yet. Ask athlete to complete daily check-ins.';
+        document.getElementById('coachSummaryOutput').innerHTML = 'No logs yet.';
         return;
       }
       const recent = logs.slice(-7);
       const avgEnergy = recent.reduce((a, b) => a + b.energy, 0) / recent.length;
-      const avgSleep = recent.reduce((a, b) => a + b.sleep, 0) / recent.length;
-      const mealFlags = recent.filter(r => r.skipped >= 2).length;
-      const hydrationFlags = recent.filter(r => r.hydration !== 'Well hydrated').length;
-
-      document.getElementById('coachSummaryOutput').innerHTML = `
-        <b>Last ${recent.length} check-ins:</b><br>
-        Avg energy: ${avgEnergy.toFixed(1)}/5<br>
-        Avg sleep: ${avgSleep.toFixed(1)} hrs<br>
-        Days with meal-skipping concern: ${mealFlags}<br>
-        Days with hydration concern: ${hydrationFlags}<br><br>
-        <span class="muted">Use this summary for supportive conversations and training adjustments.</span>
-      `;
+      document.getElementById('coachSummaryOutput').innerHTML = `Avg energy last ${recent.length} logs: ${avgEnergy.toFixed(1)}/5`;
     }
 
+    function initSettings() {
+      document.getElementById('gsheetEndpoint').value = settings.gsheetEndpoint;
+      document.getElementById('githubEndpoint').value = settings.githubEndpoint;
+      if (settings.gsheetEndpoint) {
+        document.getElementById('integrationStatus').innerHTML = '<span class="ok">Google endpoint loaded from local settings.</span>';
+      }
+    }
+
+    initSettings();
+    applyAuthState();
     updateDashboard();
   </script>
 </body>
