@@ -115,9 +115,18 @@
       </div>
     </section>
 
+    <section id="setupCard" class="card">
+      <h3>Step 1: Connect Google Apps Script</h3>
+      <p class="muted">Paste your Google Apps Script Web App `/exec` URL here before trying to log in.</p>
+      <label>Google Apps Script Web App URL</label>
+      <input id="endpointSetupField" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
+      <button class="btn-muted" onclick="saveIntegrationSettingsFromSetup()">Save Login Endpoint</button>
+      <div id="setupStatus" class="result">Endpoint not saved yet.</div>
+    </section>
+
     <section id="authCard" class="card">
-      <h3>Login (Google Sheets)</h3>
-      <p class="muted">Use your Google Sheets-backed email/password account. Configure your endpoint in Safety & Ethics.</p>
+      <h3>Step 2: Login (Google Sheets)</h3>
+      <p class="muted">After saving your endpoint above, enter your email and password.</p>
       <label>Email</label>
       <input id="loginEmail" type="email" placeholder="athlete@example.com" />
       <label>Password</label>
@@ -245,7 +254,8 @@
         </div>
         <div class="card">
           <h3>Security Notes</h3>
-          <p>Password auth should be validated server-side in Apps Script. Do not store cleartext passwords in browser storage. Prefer password hashing in Sheets script.</p>
+          <p>Password auth should be validated server-side in Apps Script. This simpler version uses a plain <code>password</code> column in Google Sheets so setup is easier for a school project or prototype.</p>
+          <p class="muted">Recommended user row format in your <code>Users</code> sheet: <b>email</b>, <b>password</b>, <b>role</b>, <b>active</b>. Example: <code>coach@example.com</code>, <code>secret123</code>, <code>coach</code>, <code>TRUE</code>.</p>
         </div>
       </section>
     </div>
@@ -292,7 +302,30 @@
       settings.githubEndpoint = document.getElementById('githubEndpoint').value.trim();
       localStorage.setItem('gsheetEndpoint', settings.gsheetEndpoint);
       localStorage.setItem('githubEndpoint', settings.githubEndpoint);
+      const quickField = document.getElementById('endpointSetupField');
+      if (quickField) quickField.value = settings.gsheetEndpoint;
+      const setupStatus = document.getElementById('setupStatus');
+      if (setupStatus && settings.gsheetEndpoint) setupStatus.innerHTML = '<span class="ok">Endpoint saved.</span> You can log in now.';
       document.getElementById('integrationStatus').innerHTML = '<span class="ok">Saved endpoints.</span> Login will now use these URLs.';
+    }
+
+    function saveIntegrationSettingsFromSetup() {
+      const quickUrl = document.getElementById('endpointSetupField').value.trim();
+      if (!quickUrl) {
+        setAuthStatus('Please paste your Apps Script /exec URL first.', 'warn');
+        return;
+      }
+      settings.gsheetEndpoint = quickUrl;
+      localStorage.setItem('gsheetEndpoint', settings.gsheetEndpoint);
+      const fullField = document.getElementById('gsheetEndpoint');
+      if (fullField) fullField.value = settings.gsheetEndpoint;
+      setAuthStatus('Endpoint saved. You can now log in.', 'ok');
+      const setupStatus = document.getElementById('setupStatus');
+      if (setupStatus) setupStatus.innerHTML = '<span class="ok">Endpoint saved.</span> You can log in now.';
+      const integrationStatus = document.getElementById('integrationStatus');
+      if (integrationStatus) {
+        integrationStatus.innerHTML = '<span class="ok">Saved endpoint from login card.</span> You can edit it here anytime.';
+      }
     }
 
     async function postJson(url, payload) {
@@ -504,7 +537,11 @@
     function initSettings() {
       document.getElementById('gsheetEndpoint').value = settings.gsheetEndpoint;
       document.getElementById('githubEndpoint').value = settings.githubEndpoint;
+      const quickField = document.getElementById('endpointSetupField');
+      if (quickField) quickField.value = settings.gsheetEndpoint;
       if (settings.gsheetEndpoint) {
+        const setupStatus = document.getElementById('setupStatus');
+        if (setupStatus) setupStatus.innerHTML = '<span class="ok">Endpoint loaded from local settings.</span>';
         document.getElementById('integrationStatus').innerHTML = '<span class="ok">Google endpoint loaded from local settings.</span>';
       }
     }
@@ -515,7 +552,6 @@
   </script>
 </body>
 </html>
-
 
 
 
