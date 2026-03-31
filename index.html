@@ -1,555 +1,376 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WrestleWell | Safe Weight Cut Planner</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: #0b0f14;
-      color: #f5f7fa;
-    }
-    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    h1, h2, h3 { margin-top: 0; }
-    .hero {
-      background: linear-gradient(135deg, #10223a, #172f4d 60%, #1c3f65);
-      border: 1px solid #2c4f78;
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 20px;
-    }
-    .subtitle { color: #c7d9ef; margin-bottom: 16px; }
-    .pill {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #21476f;
-      color: #d7ebff;
-      font-size: 12px;
-      margin-right: 8px;
-      margin-bottom: 8px;
-    }
-    .disclaimer {
-      margin-top: 16px;
-      background: #2f1f0a;
-      border: 1px solid #715224;
-      color: #ffe2b2;
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 13px;
-    }
-    .tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 20px; }
-    .tab {
-      border: 1px solid #32485f;
-      background: #13202d;
-      color: #d6e8ff;
-      border-radius: 10px;
-      padding: 10px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .tab.active { background: #205080; border-color: #3f78af; }
-    .panel { display: none; }
-    .panel.active { display: block; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-    .card {
-      background: #121a24;
-      border: 1px solid #28394b;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    label { display: block; font-size: 13px; color: #adc8e6; margin-bottom: 4px; }
-    input, select {
-      width: 100%;
-      border: 1px solid #35506a;
-      background: #0f1720;
-      color: #edf5ff;
-      border-radius: 10px;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-    button {
-      width: 100%;
-      border: none;
-      background: linear-gradient(45deg, #3f93d9, #59b1f0);
-      color: #041422;
-      font-weight: 700;
-      border-radius: 10px;
-      padding: 11px;
-      cursor: pointer;
-      margin-bottom: 8px;
-    }
-    .btn-muted {
-      background: #243648;
-      color: #dbeeff;
-      border: 1px solid #416282;
-    }
-    .result { background: #0d141d; border: 1px solid #2f4358; border-radius: 10px; padding: 12px; line-height: 1.45; }
-    .ok { color: #81e7a8; }
-    .warn { color: #ffcc75; }
-    .danger { color: #ff8d8d; }
-    .muted { color: #b6ccdf; font-size: 13px; }
-    .hidden { display: none; }
-    .kpi { font-size: 24px; font-weight: 700; }
-    ul { padding-left: 18px; }
-    canvas { background: #fff; border-radius: 10px; padding: 10px; }
-  </style>
-</head>
+<meta charset="UTF-8">
+<title>Elite Wrestler Planner</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{box-sizing:border-box;}
+
+
+  
+body{
+font-family: "Segoe UI", Arial, sans-serif;
+margin:0;
+background:linear-gradient(135deg,#000000,#1a1a1a,#2b2b2b);
+color:#ffd54a;
+}
+
+/* Layout */
+.container{
+max-width:1100px;
+margin:auto;
+padding:20px;
+}
+
+h1{
+text-align:center;
+margin-bottom:20px;
+letter-spacing:1px;
+color:#ffcc00;
+}
+
+/* Cards */
+.card{
+background:rgba(0,0,0,0.65);
+border-radius:18px;
+padding:20px;
+margin-bottom:20px;
+box-shadow:0 12px 35px rgba(0,0,0,0.6);
+border:1px solid rgba(255,204,0,0.25);
+}
+
+/* Grid */
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+@media(max-width:800px){
+.grid{grid-template-columns:1fr;}
+}
+
+/* Inputs */
+label{
+font-size:14px;
+opacity:0.9;
+}
+
+input,select{
+width:100%;
+padding:12px;
+border-radius:10px;
+border:none;
+margin-top:5px;
+margin-bottom:12px;
+background:#111;
+color:#ffcc00;
+border:1px solid #333;
+}
+
+/* Buttons */
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+background:linear-gradient(45deg,#ffcc00,#ffaa00);
+color:black;
+font-weight:bold;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{
+transform:scale(1.05);
+box-shadow:0 0 12px rgba(255,204,0,0.6);
+}
+
+/* Chat */
+.chat{
+height:160px;
+overflow:auto;
+background:#050505;
+border-radius:12px;
+padding:10px;
+margin-bottom:10px;
+border:1px solid rgba(255,204,0,0.2);
+}
+
+.msgUser{
+text-align:right;
+color:#ffcc00;
+margin:4px 0;
+}
+
+.msgAI{
+text-align:left;
+color:#ddd;
+margin:4px 0;
+}
+
+/* Chart */
+canvas{
+background:white;
+border-radius:12px;
+padding:10px;
+}
+
+/* Results text styling */
+.stat{
+font-size:18px;
+margin-bottom:6px;
+}
+</style>
+
+</style></head>
+  
 <body>
-  <div class="container">
-    <section class="hero">
-      <h1>WrestleWell</h1>
-      <p class="subtitle">Make weight safely, keep energy high, and recover like an athlete.</p>
-      <span class="pill">Safe Weight Trend</span>
-      <span class="pill">Hydration + Electrolytes</span>
-      <span class="pill">Fuel + Recovery</span>
-      <span class="pill">Google Sheets Login Logs</span>
-      <div class="disclaimer">
-        Educational athlete-support tool only. Not medical advice. If symptoms (dizziness, fainting, confusion, rapid extreme weight loss) appear,
-        stop and contact a coach, athletic trainer, or healthcare professional.
-      </div>
-    </section>
 
-    <section id="setupCard" class="card">
-      <h3>Step 1: Connect Google Apps Script</h3>
-      <p class="muted">Paste your Google Apps Script Web App `/exec` URL here before trying to log in.</p>
-      <label>Google Apps Script Web App URL</label>
-      <input id="endpointSetupField" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
-      <button class="btn-muted" onclick="saveIntegrationSettingsFromSetup()">Save Login Endpoint</button>
-      <div id="setupStatus" class="result">Endpoint not saved yet.</div>
-    </section>
+<div class="container">
 
-    <section id="authCard" class="card">
-      <h3>Step 2: Login (Google Sheets)</h3>
-      <p class="muted">After saving your endpoint above, enter your email and password.</p>
-      <label>Email</label>
-      <input id="loginEmail" type="email" placeholder="athlete@example.com" />
-      <label>Password</label>
-      <input id="loginPassword" type="password" placeholder="Password" />
-      <button onclick="loginWithSheets()">Login</button>
-      <button class="btn-muted" onclick="logout()">Logout</button>
-      <div id="authStatus" class="result">Not logged in.</div>
-    </section>
+<h1>Elite Wrestler Performance Planner</h1>
 
-    <div id="appContent" class="hidden">
-      <div class="tabs">
-        <button class="tab active" data-target="dashboard">Dashboard</button>
-        <button class="tab" data-target="weightHydration">Weight & Hydration</button>
-        <button class="tab" data-target="fuelRecovery">Fuel & Recovery</button>
-        <button class="tab" data-target="learn">Learn Hub</button>
-        <button class="tab" data-target="coach">Coach/Parent</button>
-        <button class="tab" data-target="ethics">Safety & Ethics</button>
-      </div>
+<div class="grid">
 
-      <section id="dashboard" class="panel active">
-        <div class="grid">
-          <div class="card">
-            <h3>Daily Athlete Check-In</h3>
-            <label>Today's Weight (lbs)</label><input id="todayWeight" type="number" />
-            <label>Energy (1-5)</label>
-            <select id="energy"><option>1</option><option>2</option><option>3</option><option selected>4</option><option>5</option></select>
-            <label>Hydration Status</label>
-            <select id="hydrationStatus"><option>Well hydrated</option><option>A bit dehydrated</option><option>Very dehydrated</option></select>
-            <label>Meals Skipped Today</label><input id="mealsSkipped" type="number" min="0" max="8" value="0" />
-            <label>Sleep Last Night (hours)</label><input id="sleepHours" type="number" step="0.5" value="8" />
-            <button onclick="saveDailyLog()">Save Check-In</button>
-            <div id="checkinFeedback" class="result">No check-in yet.</div>
-          </div>
-          <div class="card">
-            <h3>Season Risk Snapshot</h3>
-            <div class="kpi" id="riskLevel">Low</div>
-            <p class="muted" id="riskReason">Add check-ins to get risk insights.</p>
-            <canvas id="trendChart"></canvas>
-          </div>
-        </div>
-      </section>
+<!-- Athlete Input -->
+<div class="card">
+<h2>Athlete Setup</h2>
 
-      <section id="weightHydration" class="panel">
-        <div class="grid">
-          <div class="card">
-            <h3>Safe Weight-Loss Planner</h3>
-            <label>Current Weight (lbs)</label><input id="currentWeight" type="number" />
-            <label>Goal Weight (lbs)</label><input id="goalWeight" type="number" />
-            <label>Days Until Weigh-In</label><input id="daysToWeighIn" type="number" />
-            <label>Age Group</label><select id="ageGroup"><option>High school</option><option>College</option></select>
-            <button onclick="runWeightPlan()">Generate Safe Plan</button>
-            <div id="weightPlanOutput" class="result"></div>
-          </div>
-          <div class="card">
-            <h3>Hydration & Electrolyte Calculator</h3>
-            <label>Body Weight (lbs)</label><input id="hydroWeight" type="number" />
-            <label>Practice Duration (minutes)</label><input id="practiceMinutes" type="number" />
-            <label>Sweat Rate</label><select id="sweatRate"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select>
-            <label>Environment</label><select id="environment"><option value="normal">Normal</option><option value="hot">Hot/Humid</option></select>
-            <button onclick="runHydrationPlan()">Calculate Hydration</button>
-            <div id="hydrationOutput" class="result"></div>
-          </div>
-          <div class="card">
-            <h3>Weigh-In Recovery Plan</h3>
-            <label>Weight Lost in Last 24h (lbs)</label><input id="lost24h" type="number" step="0.1" />
-            <button onclick="generateWeighInRecovery()">Build Recovery Steps</button>
-            <div id="weighInRecoveryOutput" class="result"></div>
-          </div>
-        </div>
-      </section>
+<label>Current Weight (lbs)</label>
+<input id="weight" type="number">
 
-      <section id="fuelRecovery" class="panel">
-        <div class="grid">
-          <div class="card">
-            <h3>Daily Fuel Planner</h3>
-            <label>Body Weight (lbs)</label><input id="fuelWeight" type="number" />
-            <label>Day Type</label><select id="dayType"><option value="practice">Practice Day</option><option value="rest">Rest Day</option></select>
-            <button onclick="runFuelPlan()">Build Fuel Plan</button>
-            <div id="fuelOutput" class="result"></div>
-          </div>
-          <div class="card">
-            <h3>Post-Practice Recovery Guide</h3>
-            <label>Minutes Since Practice Ended</label><input id="minutesSince" type="number" value="20" />
-            <button onclick="runRecoveryGuide()">Get Recovery Guidance</button>
-            <div id="recoveryOutput" class="result"></div>
-          </div>
-          <div class="card">
-            <h3>Tournament Recovery Mode</h3>
-            <label>Matches Today</label><input id="matchCount" type="number" value="3" />
-            <label>Average Minutes Between Matches</label><input id="minutesBetween" type="number" value="90" />
-            <button onclick="runTournamentPlan()">Create Tournament Plan</button>
-            <div id="tournamentOutput" class="result"></div>
-          </div>
-        </div>
-      </section>
+<label>Target Weight (lbs)</label>
+<input id="target" type="number">
 
-      <section id="learn" class="panel">
-        <div class="card">
-          <h3>Hydration Education Hub</h3>
-          <ul>
-            <li><b>Pre-practice:</b> Start hydrated; pale-yellow urine is a good sign.</li>
-            <li><b>During practice:</b> Sip regularly, not all at once.</li>
-            <li><b>Electrolytes:</b> Useful in long/hot sessions or high sweat loss.</li>
-          </ul>
-        </div>
-      </section>
+<label>Days Until Weigh-In</label>
+<input id="days" type="number">
 
-      <section id="coach" class="panel">
-        <div class="card">
-          <h3>Coach/Parent Support Mode</h3>
-          <button onclick="generateCoachSummary()">Generate Weekly Summary</button>
-          <div id="coachSummaryOutput" class="result"></div>
-        </div>
-      </section>
+<label>Practice Duration (minutes)</label>
+<input id="practice" type="number">
 
-      <section id="ethics" class="panel">
-        <div class="card">
-          <h3>Integration Settings</h3>
-          <label>Google Apps Script Web App URL</label>
-          <input id="gsheetEndpoint" type="url" placeholder="https://script.google.com/macros/s/.../exec" />
-          <label>Optional GitHub Webhook/Proxy URL</label>
-          <input id="githubEndpoint" type="url" placeholder="https://your-api.example.com/github-login-log" />
-          <button onclick="saveIntegrationSettings()">Save Integration Settings</button>
-          <div id="integrationStatus" class="result">Set your endpoints, then login attempts will validate with Google Sheets and log events.</div>
-        </div>
-        <div class="card">
-          <h3>Security Notes</h3>
-          <p>Password auth should be validated server-side in Apps Script. This simpler version uses a plain <code>password</code> column in Google Sheets so setup is easier for a school project or prototype.</p>
-          <p class="muted">Recommended user row format in your <code>Users</code> sheet: <b>email</b>, <b>password</b>, <b>role</b>, <b>active</b>. Example: <code>coach@example.com</code>, <code>secret123</code>, <code>coach</code>, <code>TRUE</code>.</p>
-        </div>
-      </section>
-    </div>
-  </div>
+<label>Sweat Level</label>
+<select id="sweat">
+<option value="low">Low</option>
+<option value="medium">Medium</option>
+<option value="high">High</option>
+</select>
 
-  <script>
-    const tabs = document.querySelectorAll('.tab');
-    const panels = document.querySelectorAll('.panel');
-    let trendChart;
-    let logs = JSON.parse(localStorage.getItem('wrestleWellLogs') || '[]');
-    let loggedInEmail = sessionStorage.getItem('loggedInEmail') || '';
+<button onclick="generate()">Generate Plan</button>
+</div>
 
-    const settings = {
-      gsheetEndpoint: localStorage.getItem('gsheetEndpoint') || '',
-      githubEndpoint: localStorage.getItem('githubEndpoint') || ''
-    };
+<!-- Daily Checkin -->
+<div class="card">
+<h2>Daily Check-In</h2>
 
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        panels.forEach(p => p.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById(tab.dataset.target).classList.add('active');
-      });
-    });
+<label>Today's Weight</label>
+<input id="logWeight" type="number">
 
-    function setAuthStatus(message, level = 'ok') {
-      document.getElementById('authStatus').innerHTML = `<span class="${level}">${message}</span>`;
-    }
+<button onclick="addLog()">Log Weight</button>
+<button onclick="resetLog()">Reset Log</button>
 
-    function applyAuthState() {
-      const app = document.getElementById('appContent');
-      if (loggedInEmail) {
-        app.classList.remove('hidden');
-        setAuthStatus(`Logged in as ${loggedInEmail}.`, 'ok');
-      } else {
-        app.classList.add('hidden');
-        setAuthStatus('Not logged in.', 'warn');
-      }
-    }
+</div>
 
-    function saveIntegrationSettings() {
-      settings.gsheetEndpoint = document.getElementById('gsheetEndpoint').value.trim();
-      settings.githubEndpoint = document.getElementById('githubEndpoint').value.trim();
-      localStorage.setItem('gsheetEndpoint', settings.gsheetEndpoint);
-      localStorage.setItem('githubEndpoint', settings.githubEndpoint);
-      const quickField = document.getElementById('endpointSetupField');
-      if (quickField) quickField.value = settings.gsheetEndpoint;
-      const setupStatus = document.getElementById('setupStatus');
-      if (setupStatus && settings.gsheetEndpoint) setupStatus.innerHTML = '<span class="ok">Endpoint saved.</span> You can log in now.';
-      document.getElementById('integrationStatus').innerHTML = '<span class="ok">Saved endpoints.</span> Login will now use these URLs.';
-    }
+</div>
 
-    function saveIntegrationSettingsFromSetup() {
-      const quickUrl = document.getElementById('endpointSetupField').value.trim();
-      if (!quickUrl) {
-        setAuthStatus('Please paste your Apps Script /exec URL first.', 'warn');
-        return;
-      }
-      settings.gsheetEndpoint = quickUrl;
-      localStorage.setItem('gsheetEndpoint', settings.gsheetEndpoint);
-      const fullField = document.getElementById('gsheetEndpoint');
-      if (fullField) fullField.value = settings.gsheetEndpoint;
-      setAuthStatus('Endpoint saved. You can now log in.', 'ok');
-      const setupStatus = document.getElementById('setupStatus');
-      if (setupStatus) setupStatus.innerHTML = '<span class="ok">Endpoint saved.</span> You can log in now.';
-      const integrationStatus = document.getElementById('integrationStatus');
-      if (integrationStatus) {
-        integrationStatus.innerHTML = '<span class="ok">Saved endpoint from login card.</span> You can edit it here anytime.';
-      }
-    }
+<!-- Chart -->
+<div class="card">
+<h2>Weight Trend</h2>
+<canvas id="chart"></canvas>
+</div>
 
-    async function postJson(url, payload) {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json().catch(() => ({}));
-    }
+<!-- Performance Results -->
+<div class="card" id="results"></div>
 
-    async function loginWithSheets() {
-      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-      const password = document.getElementById('loginPassword').value;
+<!-- Meals -->
+<div class="card">
+<h2>Fuel Suggestions</h2>
+<div id="meals"></div>
+</div>
 
-      if (!settings.gsheetEndpoint) {
-        setAuthStatus('Missing Google Apps Script endpoint. Add it in Safety & Ethics.', 'danger');
-        return;
-      }
-      if (!email || !password) {
-        setAuthStatus('Enter both email and password.', 'warn');
-        return;
-      }
+<!-- AI Coach -->
+<div class="card">
+<h2>AI Coach Assistant</h2>
 
-      setAuthStatus('Checking credentials...', 'warn');
+<div class="chat" id="chatBox"></div>
 
-      try {
-        const payload = {
-          action: 'login',
-          email,
-          password,
-          source: 'github-pages-wrestlewell',
-          timestamp: new Date().toISOString()
-        };
+<input id="chatInput" placeholder="Ask about recovery, carbs, hydration...">
+<button onclick="chat()">Ask Coach</button>
 
-        const result = await postJson(settings.gsheetEndpoint, payload);
-        if (!result.success) {
-          setAuthStatus(result.message || 'Login failed.', 'danger');
-          return;
-        }
+</div>
 
-        loggedInEmail = email;
-        sessionStorage.setItem('loggedInEmail', loggedInEmail);
-        applyAuthState();
+</div>
+  
+<script>
 
-        await postLoginAudit(email);
-      } catch (err) {
-        setAuthStatus(`Could not reach login service: ${err.message}`, 'danger');
-      }
-    }
+let chart;
+let weightLogs=[];
 
-    async function postLoginAudit(email) {
-      const auditPayload = {
-        action: 'logLogin',
-        email,
-        event: 'successful_login',
-        source: 'github-pages-wrestlewell',
-        timestamp: new Date().toISOString()
-      };
+/* ---------- PLAN GENERATION ---------- */
+function generate(){
 
-      try {
-        await postJson(settings.gsheetEndpoint, auditPayload);
-      } catch (_err) {
-        // Best-effort logging; do not block user.
-      }
+let w=parseFloat(weight.value);
+let t=parseFloat(target.value);
+let d=parseFloat(days.value);
+let p=parseFloat(practice.value);
+let s=sweat.value;
 
-      if (settings.githubEndpoint) {
-        try {
-          await postJson(settings.githubEndpoint, auditPayload);
-        } catch (_err) {
-          // Optional integration; do not block user.
-        }
-      }
-    }
+if(!w||!t||!d||!p) return;
 
-    function logout() {
-      loggedInEmail = '';
-      sessionStorage.removeItem('loggedInEmail');
-      applyAuthState();
-    }
+let diff=w-t;
+let safe=(d/7)*1;
+let hydration=w*0.6 + p*0.2;
 
-    function runWeightPlan() {
-      const current = parseFloat(document.getElementById('currentWeight').value);
-      const goal = parseFloat(document.getElementById('goalWeight').value);
-      const days = parseFloat(document.getElementById('daysToWeighIn').value);
-      const age = document.getElementById('ageGroup').value;
-      if (!current || !goal || !days) return;
-      const toLose = current - goal;
-      const weeklyLoss = toLose / (days / 7);
-      const safeLimit = age === 'High school' ? 1.0 : 1.5;
-      let levelClass = 'ok';
-      let levelMsg = 'Within a conservative range.';
-      if (weeklyLoss > safeLimit) { levelClass = 'danger'; levelMsg = 'Unsafe pace detected.'; }
-      else if (weeklyLoss > safeLimit * 0.8) { levelClass = 'warn'; levelMsg = 'Borderline aggressive.'; }
-      document.getElementById('weightPlanOutput').innerHTML = `
-        <b>Needed change:</b> ${toLose.toFixed(1)} lbs<br>
-        <b>Weekly pace:</b> ${weeklyLoss.toFixed(2)} lbs/week<br>
-        <b>Recommended max (${age}):</b> ${safeLimit.toFixed(1)} lbs/week<br>
-        <span class="${levelClass}">${levelMsg}</span>
-      `;
-    }
+if(s==="medium") hydration*=1.15;
+if(s==="high") hydration*=1.3;
 
-    function runHydrationPlan() {
-      const weight = parseFloat(document.getElementById('hydroWeight').value);
-      const practice = parseFloat(document.getElementById('practiceMinutes').value);
-      const sweat = document.getElementById('sweatRate').value;
-      const env = document.getElementById('environment').value;
-      if (!weight || !practice) return;
-      let dailyOz = weight * 0.6;
-      let duringOz = (practice / 15) * 4;
-      if (sweat === 'medium') duringOz *= 1.2;
-      if (sweat === 'high') duringOz *= 1.4;
-      if (env === 'hot') { dailyOz *= 1.1; duringOz *= 1.15; }
-      const electrolyteMg = duringOz > 24 ? 500 : 250;
-      document.getElementById('hydrationOutput').innerHTML = `
-        <b>Daily hydration target:</b> ${dailyOz.toFixed(0)} oz<br>
-        <b>During practice:</b> ${duringOz.toFixed(0)} oz total<br>
-        <b>Electrolyte sodium:</b> ${electrolyteMg}–${electrolyteMg + 250} mg during/after session
-      `;
-    }
+let carbs=w*2.2;
+let protein=w*0.8;
+let fats=w*0.35;
 
-    function generateWeighInRecovery() {
-      const lost = parseFloat(document.getElementById('lost24h').value) || 0;
-      const fluidOz = Math.max(24, lost * 24);
-      document.getElementById('weighInRecoveryOutput').innerHTML = `
-        <ol>
-          <li>First hour: ${Math.round(fluidOz * 0.4)} oz fluid + electrolytes.</li>
-          <li>30–60 min: easy carbs + lean protein.</li>
-          <li>Total over 4 hours: ~${fluidOz.toFixed(0)} oz.</li>
-        </ol>
-      `;
-    }
+results.innerHTML=`
+<h2>Performance Strategy</h2>
+<div class="stat">Weight Change: <b>${diff.toFixed(1)} lbs</b></div>
+<div class="stat">Gradual Range: <b>${safe.toFixed(1)} lbs</b></div>
 
-    function runFuelPlan() {
-      const weight = parseFloat(document.getElementById('fuelWeight').value);
-      const dayType = document.getElementById('dayType').value;
-      if (!weight) return;
-      const carbs = weight * (dayType === 'practice' ? 2.8 : 2.1);
-      const protein = weight * 0.8;
-      const fats = weight * (dayType === 'practice' ? 0.35 : 0.4);
-      document.getElementById('fuelOutput').innerHTML = `Carbs: ${carbs.toFixed(0)}g<br>Protein: ${protein.toFixed(0)}g<br>Fats: ${fats.toFixed(0)}g`;
-    }
+<h3>Daily Fuel Targets</h3>
+Carbs: ${carbs.toFixed(0)} g<br>
+Protein: ${protein.toFixed(0)} g<br>
+Fats: ${fats.toFixed(0)} g<br>
 
-    function runRecoveryGuide() {
-      const minutes = parseFloat(document.getElementById('minutesSince').value);
-      const msg = minutes <= 60 ? '<span class="ok">Perfect recovery window.</span>' : (minutes <= 120 ? '<span class="warn">Recover now.</span>' : '<span class="danger">Delayed recovery.</span>');
-      document.getElementById('recoveryOutput').innerHTML = msg;
-    }
+<h3>Hydration</h3>
+~${hydration.toFixed(0)} oz/day
 
-    function runTournamentPlan() {
-      const matches = parseFloat(document.getElementById('matchCount').value);
-      const between = parseFloat(document.getElementById('minutesBetween').value);
-      if (!matches || !between) return;
-      const sipOz = between >= 60 ? 12 : 8;
-      document.getElementById('tournamentOutput').innerHTML = `Between matches: ~${sipOz} oz + quick carbs.`;
-    }
+<p>
+${diff>safe ?
+"Target exceeds gradual range — prioritize consistent fueling and consult your coach/trainer."
+:
+"Target aligns with gradual performance-focused management."}
+</p>
+`;
 
-    function saveDailyLog() {
-      const weight = parseFloat(document.getElementById('todayWeight').value);
-      const energy = parseInt(document.getElementById('energy').value, 10);
-      const hydration = document.getElementById('hydrationStatus').value;
-      const skipped = parseInt(document.getElementById('mealsSkipped').value, 10) || 0;
-      const sleep = parseFloat(document.getElementById('sleepHours').value);
-      if (!weight || !sleep) return;
-      logs.push({ date: new Date().toLocaleDateString(), weight, energy, hydration, skipped, sleep });
-      localStorage.setItem('wrestleWellLogs', JSON.stringify(logs));
-      document.getElementById('checkinFeedback').innerHTML = '<span class="ok">Check-in saved.</span>';
-      updateDashboard();
-    }
+generateMeals(carbs,protein);
+drawChart();
+}
 
-    function updateDashboard() {
-      const riskLevel = document.getElementById('riskLevel');
-      const riskReason = document.getElementById('riskReason');
-      if (!logs.length) return;
-      const recent = logs.slice(-7);
-      let score = 0;
-      recent.forEach(l => {
-        if (l.energy <= 2) score += 2;
-        if (l.hydration !== 'Well hydrated') score += 1;
-        if (l.skipped >= 2) score += 2;
-        if (l.sleep < 7) score += 1;
-      });
-      if (score >= 10) { riskLevel.textContent = 'High'; riskLevel.className = 'kpi danger'; riskReason.textContent = 'Underfueling + recovery strain.'; }
-      else if (score >= 5) { riskLevel.textContent = 'Moderate'; riskLevel.className = 'kpi warn'; riskReason.textContent = 'Some warning signs.'; }
-      else { riskLevel.textContent = 'Low'; riskLevel.className = 'kpi ok'; riskReason.textContent = 'Trend supports safer management.'; }
-      drawTrendChart();
-    }
+/* ---------- MEALS ---------- */
+function generateMeals(c,p){
+meals.innerHTML=`
+Breakfast → Oats, fruit, eggs<br>
+Lunch → Rice bowl + lean protein<br>
+Snack → Yogurt + granola<br>
+Post Practice → Chocolate milk / shake<br>
+Dinner → Potatoes, vegetables, protein<br><br>
+Macro Emphasis → Carbs ${c.toFixed(0)}g | Protein ${p.toFixed(0)}g
+`;
+}
 
-    function drawTrendChart() {
-      const ctx = document.getElementById('trendChart');
-      if (trendChart) trendChart.destroy();
-      trendChart = new Chart(ctx, {
-        type: 'line',
-        data: { labels: logs.map(l => l.date), datasets: [{ label: 'Weight Trend', data: logs.map(l => l.weight), borderWidth: 2, tension: 0.2 }] }
-      });
-    }
+/* ---------- WEIGHT LOG ---------- */
+function addLog(){
+let val=parseFloat(logWeight.value);
+if(!val) return;
 
-    function generateCoachSummary() {
-      if (!logs.length) {
-        document.getElementById('coachSummaryOutput').innerHTML = 'No logs yet.';
-        return;
-      }
-      const recent = logs.slice(-7);
-      const avgEnergy = recent.reduce((a, b) => a + b.energy, 0) / recent.length;
-      document.getElementById('coachSummaryOutput').innerHTML = `Avg energy last ${recent.length} logs: ${avgEnergy.toFixed(1)}/5`;
-    }
+weightLogs.push(val);
+logWeight.value="";
+drawChart();
+}
 
-    function initSettings() {
-      document.getElementById('gsheetEndpoint').value = settings.gsheetEndpoint;
-      document.getElementById('githubEndpoint').value = settings.githubEndpoint;
-      const quickField = document.getElementById('endpointSetupField');
-      if (quickField) quickField.value = settings.gsheetEndpoint;
-      if (settings.gsheetEndpoint) {
-        const setupStatus = document.getElementById('setupStatus');
-        if (setupStatus) setupStatus.innerHTML = '<span class="ok">Endpoint loaded from local settings.</span>';
-        document.getElementById('integrationStatus').innerHTML = '<span class="ok">Google endpoint loaded from local settings.</span>';
-      }
-    }
+function resetLog(){
+weightLogs=[];
+drawChart();
+}
 
-    initSettings();
-    applyAuthState();
-    updateDashboard();
-  </script>
+/* ---------- CHART ---------- */
+function drawChart(){
+
+if(chart) chart.destroy();
+
+chart=new Chart(document.getElementById('chart'),{
+type:'line',
+data:{
+labels:weightLogs.map((_,i)=>"Entry "+(i+1)),
+datasets:[{
+label:'Actual Weight',
+data:weightLogs,
+borderWidth:3,
+tension:0.25
+}]
+}
+});
+}
+
+/* ---------- AI CHAT ---------- */
+function chat(){
+
+let msg=chatInput.value.toLowerCase();
+let response="Stay consistent with hydration, fueling, and sleep.";
+
+if(msg.includes("hydrate"))
+response="Hydrate steadily all day. Add electrolytes during hard practices.";
+
+if(msg.includes("carb"))
+response="Carbs fuel performance — rice, oats, potatoes, fruit are top choices.";
+
+if(msg.includes("recovery"))
+response="Eat carbs + protein within 60 min post practice and aim for 8 hrs sleep.";
+
+if(msg.includes("weight"))
+response="Monitor trends — daily fluctuations are normal. Focus on weekly direction.";
+
+chatBox.innerHTML+=`<div class="msgUser">You: ${msg}</div>`;
+chatBox.innerHTML+=`<div class="msgAI">Coach: ${response}</div>`;
+chatInput.value="";
+}
+
+<!-- Firebase Compat SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* ============================
+   FIREBASE CONFIGURATION
+============================ */
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD9VY7krf_XsQj4hF7DomFNsNKejEtwvuY",
+  authDomain: "elite-wrestler-performance.firebaseapp.com",
+  projectId: "elite-wrestler-performance",
+  storageBucket: "elite-wrestler-performance.firebasestorage.app",
+  messagingSenderId: "699274899740",
+  appId: "1:699274899740:web:91d7006270ec545099cad9"
+};
+
+/* ============================
+   INITIALIZE FIREBASE
+============================ */
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+console.log("Firebase connected successfully");
+
+/* ============================
+   TEST FIRESTORE CONNECTION
+============================ */
+
+db.collection("test").doc("connection").set({
+  status: "connected",
+  timestamp: new Date()
+})
+.then(() => {
+  console.log("Firestore write successful");
+})
+.catch((error) => {
+  console.error("Firestore error:", error);
+});
+</script>
+  
 </body>
 </html>
 
